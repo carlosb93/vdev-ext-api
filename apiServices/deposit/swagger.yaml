@@ -1,0 +1,126 @@
+--- # Define Components---------------------------
+components:
+  schemas:
+    Deposit:
+      type: object
+      required:
+        - province_code
+        - branch_code
+        - currency 
+        - amount 
+        - desglose
+      discriminator:
+        propertyName: id_deposit
+      properties:
+        extraction_number:
+          type: string
+          description: Este campo se genera a partir de los datos sumistrados
+        province_code:
+          type: string
+          description: El código de la provincia destino del depósito
+        branch_code:
+          type: string
+          description: El código de la sucursal destino del depósito
+        branch_code:
+          type: string
+          description: El código de la sucursal destino del depósito
+        amount:
+          type: float
+          description: El importe del depósito
+        extern_reference:
+          type: string
+          description: Este campo es por si el depósito en cuestión posee alguna referencia externa
+        observation:
+          type: string
+          description: Este campo es por si el depósito en cuestión posee alguna observación
+        desglose:
+          type: object
+            denomination:
+              type: float
+              description: El valor de la denominación
+            denomination_code:
+              type: string
+              description: El código de la denominación
+            status:
+              type: string
+              description: El estado de la denominación
+            status_code:
+              type: string
+              description: El código del estado de la denominación
+          required:
+            - denomination
+            - denomination_code
+            - status
+            - status_code
+          description: Aquí se define todo el desglose del depósito 
+        currency:
+          type: string
+          description: El tipo de moneda a operar
+      example:
+         deposit_number: 'LH03200068'
+         province_code: '03'
+         branch_code: '06'
+         extern_reference: 'LS205'
+         currency: 'CUP'
+         importe: 100         
+         observation: 'Este depósito tiene prioridad'
+
+# Define Tags---------------------------------
+tags:
+  name: deposit-resources
+  description: The Deposit managing API
+
+# Define Paths--------------------------------
+paths:
+  /deposits/create:
+    post:
+      summary: Create a new deposit
+      tags: [deposit-resources]
+      security:
+        - Bearer: []
+      description: Service to create a new extraction
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                province_code:
+                  type: string
+                  description: El código de la provincia destino del depósito
+                branch_code:
+                  type: string
+                  description: El código de la sucursal destino del depósito
+                amount:
+                  type: float
+                  description: El importe de la depósito
+                extern_reference:
+                  type: string
+                  description: Este campo es por si el depósito en cuestión posee alguna referencia 
+                observation:
+                  type: string
+                  description: Este campo es por si el depósito en cuestión posee alguna observación
+                desglose:
+                  type: string
+                  description: Aquí se define todo el desglose de la depósito
+                currency:
+                  type: string
+                  description: El tipo de moneda a operar
+               
+      responses:
+        201:
+          description: Depósito created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Deposit"
+        400:
+          $ref: "#/components/responses/400"
+        401:
+          $ref: "#/components/responses/401"
+        403:
+          $ref: "#/components/responses/403"
+        5XX:
+          $ref: "#/components/responses/5XX"
+  

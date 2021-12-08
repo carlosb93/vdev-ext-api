@@ -1,0 +1,17 @@
+node_modules/
+public/
+docs/
+.env
+.nyc_output
+.sass-cache
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+package-lock.json
+package.json
+yarn.lock

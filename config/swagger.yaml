@@ -1,0 +1,373 @@
+# Define Global Components---------------------------
+components:
+  # Global Schemas -----------------------------------
+  schemas:
+    QueryBuilderList:
+      type: object
+      description: _Scheme in which the options to build more specific requests are defined_
+      properties:
+        options:
+          type: object
+          properties:
+            include:
+              type: array
+              items:
+                oneOf:
+                  - type: string
+                  - type: object
+                    properties:
+                      all:
+                        type: boolean
+                      nested:
+                        type: boolean
+                      association:
+                        type: string
+                      where:
+                        oneOf:
+                          - type: object
+                            properties:
+                              and:
+                                type: array
+                                items:
+                                  type: object
+                                  description: Pair attr - value
+                              or:
+                                type: array
+                                items:
+                                  type: object
+                                  description: Pair attr - value
+                              not:
+                                type: array
+                                items:
+                                  type: object
+                                  description: Pair attr - value || Pair attr - values list
+                          - type: object
+                            description: Pair attr - value
+                      required:
+                        type: boolean
+                      attributes:
+                        type: array
+                        items:
+                          type: string
+            where:
+              oneOf:
+                - type: object
+                  properties:
+                    and:
+                      type: array
+                      items:
+                        type: object
+                        description: Pair attr - value
+                    or:
+                      type: array
+                      items:
+                        type: object
+                        description: Pair attr - value
+                    not:
+                      type: array
+                      items:
+                        type: object
+                        description: Pair attr - value || Pair attr - values list
+                - type: object
+                  description: Pair attr - value
+            order:
+              type: array
+              items:
+                oneOf:
+                  - type: string
+                  - type: object
+                    properties:
+                      association:
+                        type: string
+            attributes:
+              type: array
+              items:
+                type: string
+            offset:
+              type: integer
+            limit:
+              type: integer
+            paranoid:
+              type: boolean
+    QueryBuilderOne:
+      type: object
+      description: _Scheme in which the options to build more specific requests are defined_
+      properties:
+        options:
+          type: object
+          properties:
+            include:
+              type: array
+              items:
+                oneOf:
+                  - type: string
+                  - type: object
+                    properties:
+                      all:
+                        type: boolean
+                      nested:
+                        type: boolean
+                      association:
+                        type: string
+                      where:
+                        oneOf:
+                          - type: object
+                            properties:
+                              and:
+                                type: array
+                                items:
+                                  type: object
+                                  description: Pair attr - value
+                              or:
+                                type: array
+                                items:
+                                  type: object
+                                  description: Pair attr - value
+                              not:
+                                type: array
+                                items:
+                                  type: object
+                                  description: Pair attr - value || Pair attr - values list
+                          - type: object
+                            description: Pair attr - value
+                      required:
+                        type: boolean
+                      attributes:
+                        type: array
+                        items:
+                          type: string
+            where:
+              oneOf:
+                - type: object
+                  properties:
+                    and:
+                      type: array
+                      items:
+                        type: object
+                        description: Pair attr - value
+                    or:
+                      type: array
+                      items:
+                        type: object
+                        description: Pair attr - value
+                    not:
+                      type: array
+                      items:
+                        type: object
+                        description: Pair attr - value || Pair attr - values list
+                - type: object
+                  description: Pair attr - value
+            attributes:
+              type: array
+              items:
+                type: string
+            paranoid:
+              type: boolean
+  # Global Security Schemas --------------------------
+  securitySchemes:
+    Bearer:
+      type: http
+      description: Enter JWT Bearer token **_only_**
+      scheme: bearer
+      bearerFormat: JWT
+
+  # Global Request Bodies -----------------------------
+  requestBodies:
+    QueryBuilderBody:
+      description: |-
+        The endpoint can receive in body an **options** object that allows loading the **relations** of model, admitting configurations:
+        _An **include** field can be sent with a list with the configurations_
+        > Get all the relationships of model:
+        ```
+        "options": {
+            "include": [
+               {
+                 all: true,
+                 nested: true
+               }
+            ]
+        }
+        ```
+        - ___all___ : Load all relationships.
+        - ___nested___ : Load all relations from relations (recursive) PS: Does not work for Tree shaped models.
+
+        > Get specific relationships:
+        ```
+        {
+            "include": ["_alias1", "_alias2", ...]
+        }
+        ```
+        - The names of aliases of the relationships to be obtained are listed.
+
+        > Get specific relationships with additional settings:
+        ```
+        "options": {
+            "include": [
+                {
+        			association: "_alias",
+        			where: {
+                       attr: "_value"
+        			},
+        			attributes: ["atributo1", "atributo2",...]
+        			required: false
+        		},
+        		...
+        	]
+        }
+        ```
+        - ___association___ : Aliases of relationship to obtain.
+        - ___where___ : Object that defines the conditions of each relation to be obtained.
+        - ___attr___ : Name of attribute by which obtaining relation will be conditioned.
+        - ___value___ : Value by which the defined attribute is matched to condition the obtaining the relation.
+        - ___attributes___ : The names of the specific attributes you want to obtain from each relationship are listed.
+        - ___required___ : Gets only the tuples that have the specified relationship (Default is true).
+        - > Is allowed condition the _where_ object using AND, OR, NOT and LIKE:
+        > ```
+        >  where: {
+        >  	and: [
+        >  		{attr: _value},
+        >  		{attr: _value}
+        >  	],
+        >  	or: [
+        >  		{attr: _value},
+        >  		{attr: _value}
+        >  	],
+        >  	not: [
+        >  	    {attr: [_value, _value]},
+        >  	    {attr: [_value, _value]},
+        >  	],
+        >   like: {
+        >     attr: _value
+        >   }
+        >  }
+        >  ```
+        > - ___and___ : List of objects with attr - value pair to condition as AND.
+        > - ___or___ : List of objects with attr - value pair to condition as OR.
+        > - ___not___ : Object or list of objects with attr - value pair to condition as NOT.
+        > - ___like___ : Object with attr - value pair to condition as LIKE (contains value).
+        > - > Constraints can be nested.
+        >>  ```
+        >>   where: {
+        >>    and: [
+        >>           {
+        >>             not: [
+        >>  	           {attr: [_value, _value]},
+        >>  	           {attr: [_value, _value]},
+        >>   	         ],
+        >>           }
+        >>     ],
+        >>     and: [
+        >>           {
+        >>             like: { attr: _value }
+        >>           },
+        >>           {
+        >>             like: { attr: _value }
+        >>           }
+        >>     ],
+        >>   }
+        >>  ```
+        ---
+        _A **where** filed can be sent with settings:_
+        > Get the response conditioning by attr - value pair:
+        ```
+        "options": {
+            "where": {
+                attr: _value
+            }
+        }
+        ```
+        - ___attr___ : Name of attribute by which obtaining relation will be conditioned.
+        - ___value___ : Value by which the defined attribute is matched to condition the obtaining the relation.
+        - > Is allows conditioning using AND, OR, NOT and LIKE described above.
+        ---
+        _An **order** field can be sent with a list with the configurations_
+        > Get the response sorted by specific fields of model:
+        ```
+        "options": {
+        	"order": [_field, _type]
+        }
+        ```
+        - ___field___ : Name of field by which you want to sort.
+        - ___type___ : Sort type. Can be **ASC** (ascending) | **DESC* (descending) | **NULFIRST** (nulls first)
+
+        > Get the response with sorted relations by specific fields of model:
+        ```
+        "options": {
+        	"order": [{ association: _alias }, _field, _type]
+        }
+        ```
+        - ___{association: _alias}___ : The object with the alias of the association that you want to get ordered is send to it.
+        ---
+        _An **attributes** field can be sent with a list with attributes names to obtain_
+        > Get specific attributes:
+        ```
+        "options": {
+            "attributes": ["attribute1", "attribute2",...]
+        }
+        ```
+        - The names of specific attributes to obtain are listed.
+        ---
+        _The fields **offset - limit** can be sent to define the pagination of response_
+        > Define amount of data to obtain and index to start:
+        ```
+        "options": {
+            "offset": _number,
+            "limit": _number
+        }
+        ```
+        - ___offset___ : Value from which to start loading the data.
+        - ___limit___ : Total value of data to load.
+        ---
+        _The **paranoid** field can be sent to obtain or not the data disabled by **sofDelete**_
+        ```
+        "options": {
+            "paranoid": false,
+        }
+        ```
+        ---
+        ---
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/QueryBuilderList'
+  # Global Responses ----------------------------------
+  responses:
+    400:
+      description: |-
+        Some error ocurred, __described in response__
+    404:
+      description: The specified resource was not found
+    401:
+      description: |-
+        Unauthorized token responses:
+        - __"Authorization Required"__
+        - __"Token Expired"__
+        - __"Invalid Token"__
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                enum: [Authorization Required, Token Expired, Invalid Token]
+    403:
+      description: Unauthorized permission responses
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            example:
+              message: You need to be at least have a role
+    429:
+      description: Many failed attemps
+      content:
+        text/plain:
+          schema:
+            type: string
+            example: Too many failed attempts in a short period of time, please try again in 5 minutes
+    5XX:
+      description: Some internal server error ocurred.
